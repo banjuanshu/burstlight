@@ -1,0 +1,42 @@
+#!/bin/sh
+
+
+cmd="$1"
+
+light_1="$2"
+light_2="$3"
+light_3="$4"
+
+led_1="nohup python -u /bjs/led/led_1.py $light_1 >> /bjs/log/button_opt.log 2>> /bjs/log/button_opt.log &"
+led_2="nohup python -u /bjs/led/led_2.py $light_2 >> /bjs/log/button_opt.log 2>> /bjs/log/button_opt.log &"
+led_3="nohup python -u /bjs/led/led_3.py $light_3 >> /bjs/log/button_opt.log 2>> /bjs/log/button_opt.log &"
+
+killled="ps -ef | grep led | grep -v grep | cut -c 11-15 | xargs kill -9 &"
+
+
+if [ "$cmd" = "start" ]; then
+	echo "$cmd led"
+	
+	ps -fe|grep /bjs/led/led_1.py | grep -v grep
+	if [ $? -ne 0 ]; then
+		eval $led_1
+	fi
+
+	ps -fe|grep /bjs/led/led_2.py | grep -v grep
+	if [ $? -ne 0 ]; then
+		eval $led_2
+	fi
+		
+	ps -fe|grep /bjs/led/led_3.py | grep -v grep
+	if [ $? -ne 0 ]; then
+		eval $led_3
+	fi
+
+elif [ "$cmd" = "stop" ]; then
+	echo "stop led"
+	ps -aux |grep "led_" | grep -v grep| awk '{print $2}' | xargs kill -9
+else
+	ps aux | grep led | grep -v "/bin/sh /usr/local/bin/led" | grep -v "grep"
+fi
+
+exit 0
